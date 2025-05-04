@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Learnosity Manual Grading Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 10px; }
+    #result { margin-top: 20px; padding: 10px; border: 1px solid #ddd; font-size: 12px;}
+    #step2 { margin-top: 20px;}
+    button { padding: 10px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+  </style>
+  <script src="https://grading.learnosity.com/"></script>
+</head>
+<body>
+  <h2>Learnosity Grading Demo with ExpressJS</h2>
+  <div id="result" style="display: none;"></div>
+
+  <div id="inline-items-wrapper" style="display: none; margin-top: 10px;"></div>
+
+  <div id="step2" style="display: none;">
+    <p>
+      To save the grading score and feedback, hit the save API with:
+      <pre>
+        window.gradingApp.save();
+      </pre>
+      
+    </p>
+    <p>
+      Other available methods are:
+      <pre>
+        window.gradingApp.attachItem();
+        window.gradingApp.detachItem(); // detach or remove the attached item
+        window.gradingApp.reset(); // reset the gradingApp insrtrance
+        window.gradingApp.getAttachedItems(); // get the attached items
+      </pre>
+    </p>
+    <hr/>
+  </div>
+
+  <p>Load the grading and attach the item from the student session</p>
+  <p>Click the button to load the grading UI:</p>
+  <button style="padding: 16px" id="loadGradingBtn">Load Grading</button>
+  <p>
+    For more information, visit the 
+    <a href="https://help.learnosity.com/hc/en-us/articles/19987818764445-gradingApp-Grading-API" target="_blank">
+      Learnosity Grading API Documentation
+    </a>.
+  </p>
+
+  <script>
+    const wrapper = document.getElementById('inline-items-wrapper');
+    const resultEl = document.getElementById('result');
+    const loadGradingBtn = document.getElementById('loadGradingBtn');
+    const step2El = document.getElementById('step2');
+
+    const loadGrading = async () => {
+      try {
+
+        // Authetncate the credentials and get the signed request
+        const response = await fetch('/sign-request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        resultEl.style.display = 'block';
+
+        if (!response.ok) {
+          resultEl.innerHTML = 'Failed to fetch signed request';
+          throw new Error('Failed to fetch signed request');
+          return;
+        }
+
+        const { signedRequest } = await response.json();
+        resultEl.innerHTML = 'Signed request successfully generated';
+
+        // Create the hook element where to inject the grading UI
+        const hookElement = document.createElement('div');
+        wrapper.appendChild(hookElement);
+
+        // Initialize the Learnosity Grading SDK
+        const gradingApp = await LearnosityGrading.init(signedRequest);
+        // Store the gradingApp in the window object
+        window.gradingApp = gradingApp;
+        console.log('Learnosity Grading initialized');
+        resultEl.innerHTML = 'Learnosity Grading App initialized';
+        wrapper.style.display = 'block';
+
+        
+        // Call the attach item method to render the item
+        const payload = {
+          userId: 'e406b92b-ab9f-4a15-99a4-4602a4214f34',
+          sessionId: 'ada5a36b-a90f-47ab-adc6-15c7b2dc924f',
+          item: 'MANGA-DEMO-1'
+        }
+        
+        await window.gradingApp.attachItem(payload, hookElement);
+        console.log('Item attached successfully');
+        resultEl.innerHTML = 'Grading item attached successfully';
+
+        step2El.style.display = 'block';
+
+      } catch (error) {
+        console.error('Error:', error.message || error);
+        resultEl.innerHTML = 'Error: ' + error.message || error;
+      }
+    };
+
+    loadGradingBtn.addEventListener('click', loadGrading);
+  </script>
+
+</body>
+</html>
