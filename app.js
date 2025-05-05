@@ -15,8 +15,8 @@ app.set('view engine', 'ejs');
 const config = {
   graderId: 'b70cc674-9e06-4405-b326-3de3fd9450b3',
   graderSessionId: '5b2c168d-6873-434b-9cd4-d4cb97e287b2',
-  consumerKey: 'yis0TYCu7U9V4o7M',
-  consumerSecret: '74c5fd430cf1242a527f6223aebd42d30464be22',
+  consumerKey: 'your_consumer_key',
+  consumerSecret: 'your_consumer_secret',
   items: ['MANGA-DEMO-1'],
 };
 
